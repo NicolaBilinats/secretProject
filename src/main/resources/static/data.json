@@ -1,0 +1,44 @@
+[
+  {
+    "owner": "16777472",
+    "name": "16778239",
+    "secret": "CN",
+    "value": "China"
+  },
+  {
+    "owner": "16778240",
+    "name": "16779263",
+    "secret": "AU",
+    "value": "Australia"
+  },
+  {
+    "owner": "16779264",
+    "name": "16781311",
+    "secret": "CN",
+    "value": "China"
+  },
+  {
+    "owner": "16781312",
+    "name": "16785407",
+    "secret": "JP",
+    "value": "Japan"
+  },
+  {
+    "owner": "16785408",
+    "name": "16793599",
+    "secret": "CN",
+    "value": "China"
+  },
+  {
+    "owner": "16793600",
+    "name": "16809983",
+    "secret": "JP",
+    "value": "Japan"
+  },
+  {
+    "owner": "16809984",
+    "name": "16842751",
+    "secret": "TH",
+    "value": "Thailand"
+  }
+]
