@@ -4,6 +4,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileWriter;
@@ -20,7 +21,9 @@ public class Controller {
     JsonToCsv js = new JsonToCsv();
     CsvToJson cs = new CsvToJson();
     StringBuilder builder = new StringBuilder();
-    String path = "/home/nicola/Workspace/secretProject/src/main/resources/static/text.csv";
+
+    @Value("${pathCsv}")
+    String pathCsv;
     List list;
 
     public Controller() throws Exception {
@@ -37,13 +40,13 @@ public class Controller {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public Object getFullCsv() throws Exception {
-        return cs.getJson(new java.io.File(path));
+        return cs.getJson(new java.io.File(pathCsv));
     }
 
     @RequestMapping(value = "/{owner}/{name}", method = RequestMethod.GET)
     @ResponseBody
     public Object getCsv(@PathVariable String owner, @PathVariable String name) throws Exception {
-        list = cs.getJson(new java.io.File(path));
+        list = cs.getJson(new java.io.File(pathCsv));
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner"))) {
                 if (name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
@@ -59,7 +62,7 @@ public class Controller {
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.POST)
     @ResponseBody
     public void postCsv(@PathVariable String owner, @PathVariable String name, @PathVariable String secret) throws IOException {
-        CSVWriter writer = new CSVWriter(new FileWriter(path, true));
+        CSVWriter writer = new CSVWriter(new FileWriter(pathCsv, true));
         String[] record = (owner + "," + name + "," + secret).split(",");
         writer.writeNext(record);
         writer.close();
@@ -73,7 +76,7 @@ public class Controller {
                 list.remove(i);
             }
         }
-        js.rewrite(list,path);
+        js.rewrite(list,pathCsv);
     }
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.PATCH)
@@ -85,13 +88,11 @@ public class Controller {
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     if (entry.getKey().equals("secret")) {
                         entry.setValue(secret);
-                        System.out.println("Keys: " + entry.getKey());
-                        System.out.println("Values: " + entry.getValue());
                     }
                 }
             }
         }
-        js.rewrite(list,path);
+        js.rewrite(list,pathCsv);
     }
 
 }
