@@ -71,6 +71,7 @@ public class Controller {
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.DELETE)
     public @ResponseBody
     void deleteCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws IOException {
+        System.out.println("error: "+list.size());
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name")) && secret.equals(readJson(String.valueOf(list.get(i)), "secret"))) {
                 list.remove(i);
