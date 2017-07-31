@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 /**
  * Created by nicola on 24.07.17.
@@ -21,7 +23,7 @@ public class Controller {
     JsonToCsv js = new JsonToCsv();
     CsvToJson cs = new CsvToJson();
     StringBuilder builder = new StringBuilder();
-
+    HashMap<String, String> map;
     @Value("${pathCsv}")
     String pathCsv;
     List list;
@@ -70,11 +72,12 @@ public class Controller {
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.DELETE)
     public @ResponseBody
-    void deleteCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws IOException {
-        System.out.println("error: "+list.size());
+    void deleteCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
+        list = cs.getJson(new java.io.File(pathCsv));
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name")) && secret.equals(readJson(String.valueOf(list.get(i)), "secret"))) {
                 list.remove(i);
+                i--;
             }
         }
         js.rewrite(list,pathCsv);
@@ -82,10 +85,11 @@ public class Controller {
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.PATCH)
     public @ResponseBody
-    void updateCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws IOException {
+    void updateCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
+        list = cs.getJson(new java.io.File(pathCsv));
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
-                HashMap<String, String> map = (HashMap<String, String>) list.get(i);
+                map = (HashMap<String, String>) list.get(i);
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     if (entry.getKey().equals("secret")) {
                         entry.setValue(secret);
@@ -93,7 +97,6 @@ public class Controller {
                 }
             }
         }
-        js.rewrite(list,pathCsv);
+        js.rewrite(list, pathCsv);
     }
-
 }
