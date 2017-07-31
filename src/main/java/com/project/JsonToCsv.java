@@ -8,25 +8,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 
 public class JsonToCsv {
 
-    public void writeToFile(String csvString, String fileName) {
+    private void writeToFile(String csvString, String fileName) {
         try {
             FileUtils.write(new File(fileName), csvString);
         } catch (IOException e) {
-            System.out.println("CSVWriter#writeToFile(csvString, fileName) IOException: " + e);
+            System.out.println("IOException: " + e);
         }
     }
 
-    public String getCSV(List<Map<String, String>> flatJson) {
+    private String getCSV(List<Map<String, String>> flatJson) {
         return getCSV(flatJson, ",");
     }
 
-    public String getCSV(List<Map<String, String>> flatJson, String separator) {
+    private String getCSV(List<Map<String, String>> flatJson, String separator) {
         Set<String> headers = collectHeaders(flatJson);
         String csvString = StringUtils.join(headers.toArray(), separator).concat("\n");
 
@@ -53,6 +54,12 @@ public class JsonToCsv {
         }
 
         return StringUtils.join(items.toArray(), separator);
+    }
+
+    public void rewrite(List list, String path) {
+        String json = new Gson().toJson(list);
+        List<Map<String, String>> flatJson = JSONFlattener.parseJson(json);
+        writeToFile(getCSV(flatJson), path);
     }
 
 

@@ -1,7 +1,6 @@
 package com.project;
 
 import au.com.bytecode.opencsv.CSVWriter;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -21,7 +20,7 @@ public class Controller {
     JsonToCsv js = new JsonToCsv();
     CsvToJson cs = new CsvToJson();
     StringBuilder builder = new StringBuilder();
-    String path = "/home/nicola/Workspace/secretProject/src/main/resources/static/country.csv";
+    String path = "/home/nicola/Workspace/secretProject/src/main/resources/static/text.csv";
     List list;
 
     public Controller() throws Exception {
@@ -74,10 +73,7 @@ public class Controller {
                 list.remove(i);
             }
         }
-        String json = new Gson().toJson(list);
-        List<Map<String, String>> flatJson = JSONFlattener.parseJson(json);
-        js.writeToFile(js.getCSV(flatJson), path);
-
+        js.rewrite(list,path);
     }
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.PATCH)
@@ -95,8 +91,7 @@ public class Controller {
                 }
             }
         }
-        String json = new Gson().toJson(list);
-        List<Map<String, String>> flatJson = JSONFlattener.parseJson(json);
-        js.writeToFile(js.getCSV(flatJson), path);
+        js.rewrite(list,path);
     }
+
 }
