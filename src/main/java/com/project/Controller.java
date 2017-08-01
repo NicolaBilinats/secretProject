@@ -1,14 +1,14 @@
 package com.project;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 public class Controller {
     JsonToCsv js = new JsonToCsv();
     CsvToJson cs = new CsvToJson();
-    StringBuilder builder = new StringBuilder();
     HashMap<String, String> map;
     @Value("${pathCsv}")
     String pathCsv;
     List list;
+
 
     public Controller() throws Exception {
     }
@@ -42,32 +42,57 @@ public class Controller {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ResponseBody
     public Object getFullCsv() throws Exception {
-        return cs.getJson(new java.io.File(pathCsv));
+        File file = new File(pathCsv);
+        Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
+                .collect(Collectors.toList());
+        return collection;
     }
 
     @RequestMapping(value = "/{owner}/{name}", method = RequestMethod.GET)
     @ResponseBody
     public Object getCsv(@PathVariable String owner, @PathVariable String name) throws Exception {
-        list = cs.getJson(new java.io.File(pathCsv));
-        for (int i = 0; i < list.size(); i++) {
-            if (owner.equals(readJson(String.valueOf(list.get(i)), "owner"))) {
-                if (name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
-                    builder.append(readJson(String.valueOf(list.get(i)), "secret").concat(" "));
-                }
-            }
-        }
-        String[] a = String.valueOf(builder).split(" ");
-        builder.setLength(0);
-        return a;
+//        list = cs.getJson(new java.io.File(pathCsv));
+//        for (int i = 0; i < list.size(); i++) {
+//            if (owner.equals(readJson(String.valueOf(list.get(i)), "owner"))) {
+//                if (name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
+//                    builder.append(readJson(String.valueOf(list.get(i)), "secret").concat(" "));
+//                }
+//            }
+//        }
+//        String[] a = String.valueOf(builder).split(" ");
+//        builder.setLength(0);
+        File file = new File(pathCsv);
+        String[] record = (owner + "," + name).split(",");
+        Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
+                .filter(value -> {
+                    if (name.equals("*")) {
+                        if (owner.equals("*")) {
+                            return value.contains("");
+                        } else {
+                            return value.split(",")[0].equals(record[0]);
+                        }
+                    } else if (owner.equals("*")) {
+                        return value.split(",")[1].equals(record[1]);
+                    } else {
+                        return value.split(",")[0].equals(record[0]) && value.split(",")[1].equals(record[1]);
+                    }
+                })
+                .collect(Collectors.toList());
+        return collection;
     }
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.POST)
     @ResponseBody
-    public void postCsv(@PathVariable String owner, @PathVariable String name, @PathVariable String secret) throws IOException {
-        CSVWriter writer = new CSVWriter(new FileWriter(pathCsv, true));
-        String[] record = (owner + "," + name + "," + secret).split(",");
-        writer.writeNext(record);
+    public Collection<String> postCsv(@PathVariable String owner, @PathVariable String name, @PathVariable String secret) throws IOException {
+        File file = new File(pathCsv);
+        String record = (owner + "," + name + "," + secret);
+        PrintWriter writer = new PrintWriter(new FileOutputStream(file, true));
+        writer.println(record);
         writer.close();
+        Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
+                .filter(value -> value.equals(record))
+                .collect(Collectors.toList());
+        return collection;
     }
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.DELETE)
@@ -80,7 +105,7 @@ public class Controller {
                 i--;
             }
         }
-        js.rewrite(list,pathCsv);
+        js.rewrite(list, pathCsv);
     }
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.PATCH)
