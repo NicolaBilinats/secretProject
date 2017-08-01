@@ -97,8 +97,10 @@ public class Controller {
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.DELETE)
     public @ResponseBody
-    void deleteCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
+    Collection<String> deleteCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
+        File file = new File(pathCsv);
         list = cs.getJson(new java.io.File(pathCsv));
+        String record = (owner + "," + name + "," + secret);
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name")) && secret.equals(readJson(String.valueOf(list.get(i)), "secret"))) {
                 list.remove(i);
@@ -106,12 +108,18 @@ public class Controller {
             }
         }
         js.rewrite(list, pathCsv);
+        Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
+                .filter(value -> value.equals(record))
+                .collect(Collectors.toList());
+        return collection;
     }
 
     @RequestMapping(value = "/{owner}/{name}/{secret}", method = RequestMethod.PATCH)
     public @ResponseBody
-    void updateCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
+    Collection<String> updateCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
+        File file = new File(pathCsv);
         list = cs.getJson(new java.io.File(pathCsv));
+        String record = (owner + "," + name + "," + secret);
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
                 map = (HashMap<String, String>) list.get(i);
@@ -123,5 +131,9 @@ public class Controller {
             }
         }
         js.rewrite(list, pathCsv);
+        Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
+                .filter(value -> value.equals(record))
+                .collect(Collectors.toList());
+        return collection;
     }
 }
