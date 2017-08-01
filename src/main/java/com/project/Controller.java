@@ -51,16 +51,6 @@ public class Controller {
     @RequestMapping(value = "/{owner}/{name}", method = RequestMethod.GET)
     @ResponseBody
     public Object getCsv(@PathVariable String owner, @PathVariable String name) throws Exception {
-//        list = cs.getJson(new java.io.File(pathCsv));
-//        for (int i = 0; i < list.size(); i++) {
-//            if (owner.equals(readJson(String.valueOf(list.get(i)), "owner"))) {
-//                if (name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
-//                    builder.append(readJson(String.valueOf(list.get(i)), "secret").concat(" "));
-//                }
-//            }
-//        }
-//        String[] a = String.valueOf(builder).split(" ");
-//        builder.setLength(0);
         File file = new File(pathCsv);
         String[] record = (owner + "," + name).split(",");
         Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
@@ -100,7 +90,6 @@ public class Controller {
     Collection<String> deleteCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
         File file = new File(pathCsv);
         list = cs.getJson(new java.io.File(pathCsv));
-        String record = (owner + "," + name + "," + secret);
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name")) && secret.equals(readJson(String.valueOf(list.get(i)), "secret"))) {
                 list.remove(i);
@@ -109,7 +98,6 @@ public class Controller {
         }
         js.rewrite(list, pathCsv);
         Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
-                .filter(value -> value.equals(record))
                 .collect(Collectors.toList());
         return collection;
     }
@@ -119,7 +107,6 @@ public class Controller {
     Collection<String> updateCsv(@PathVariable("owner") String owner, @PathVariable("name") String name, @PathVariable("secret") String secret) throws Exception {
         File file = new File(pathCsv);
         list = cs.getJson(new java.io.File(pathCsv));
-        String record = (owner + "," + name + "," + secret);
         for (int i = 0; i < list.size(); i++) {
             if (owner.equals(readJson(String.valueOf(list.get(i)), "owner")) && name.equals(readJson(String.valueOf(list.get(i)), "name"))) {
                 map = (HashMap<String, String>) list.get(i);
@@ -132,7 +119,6 @@ public class Controller {
         }
         js.rewrite(list, pathCsv);
         Collection<String> collection = Files.lines(Paths.get(file.getAbsolutePath()))
-                .filter(value -> value.equals(record))
                 .collect(Collectors.toList());
         return collection;
     }
